@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@font-face {
+  font-family: 'BNPPSans';
+  src: url('./assets/fonts/bnpp-sans-light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+body {
+  font-family: 'BNPPSans', sans-serif;
+}
+
+.nav-link-underline {
+  position: relative;
+  display: inline-block;
+  color: #f3f4f6; 
+  text-decoration: none; 
+  padding-bottom: 2px; 
+}
+
+.nav-link-underline::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px; 
+  bottom: 0;
+  left: 0;
+  background-color: white; 
+  transition: width 0.3s ease-out; 
+}
+
+.nav-link-underline:hover::after {
+  width: 100%;
+}
+
+.nav-link-underline.text-gray-300 {
+  color: #d1d5db; 
+}
+
+.nav-link-underline:hover {
+  color: white !important;
+}
