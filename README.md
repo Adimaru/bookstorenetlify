@@ -90,6 +90,10 @@ Bash
 
 npm install
 ### 3.2. Configure API Base URL
+VERY IMPORTANT!
+VITE_API_BASE_URL=https://bookstore-project-1-b2fp.onrender.com
+is currently set to onrender for cloudhosting. remember to change this to host local!
+
 Create a .env file in the root of your bookstore-frontend directory (if it doesn't already exist) and specify the backend API URL:
 
 VITE_API_BASE_URL=http://localhost:8080
