@@ -3,7 +3,7 @@ import authService from './authService';
 
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const BOOKS_API_URL = `${API_BASE_URL}/api/books`; 
+const BOOKS_API_URL = `${API_BASE_URL}/api/books`;
 
 const authHeader = () => {
   const token = authService.getToken();
