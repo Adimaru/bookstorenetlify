@@ -6,7 +6,7 @@ COPY pom.xml .
 RUN ./mvnw dependency:go-offline -B
 COPY src src
 RUN ./mvnw clean install -DskipTests
-FROM openjdk:17-jre-slim
+FROM openjdk:17-slim
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
