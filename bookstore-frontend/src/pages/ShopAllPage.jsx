@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom'; 
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'; 
+import bookService from '../services/bookService';
 
 function ShopAllPage() {
   const [books, setBooks] = useState([]);
