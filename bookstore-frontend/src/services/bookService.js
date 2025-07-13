@@ -1,12 +1,18 @@
+// bookstore-frontend/src/services/bookService.js
+
 import axios from 'axios';
 import authService from './authService';
 
-
+// Define the base URL from environment variables
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// Define the specific URL for book-related API calls
+// This is the only API URL variable that should be used for books in this file
 const BOOKS_API_URL = `${API_BASE_URL}/api/books`;
 
+// Helper function to get the authorization header
 const authHeader = () => {
-  const token = authService.getToken();
+  const token = authService.getToken(); // Assuming authService.getToken() retrieves the JWT
   if (token) {
     return { Authorization: 'Bearer ' + token };
   } else {
@@ -14,29 +20,40 @@ const authHeader = () => {
   }
 };
 
+// Function to get all books
 const getAllBooks = () => {
-  return axios.get(API_URL); 
+  // CORRECTED: Using BOOKS_API_URL
+  return axios.get(BOOKS_API_URL);
 };
 
+// Function to get a book by its ID
 const getBookById = (id) => {
-  return axios.get(`${API_URL}/${id}`);
+  // CORRECTED: Using BOOKS_API_URL
+  return axios.get(`${BOOKS_API_URL}/${id}`);
 };
 
+// Function to add a new book (likely for admin use)
 const addBook = (book) => {
-  return axios.post(API_URL, book, { headers: authHeader() });
+  // CORRECTED: Using BOOKS_API_URL
+  return axios.post(BOOKS_API_URL, book, { headers: authHeader() });
 };
 
+// Function to update an existing book (likely for admin use)
 const updateBook = (id, book) => {
-  return axios.put(`${API_URL}/${id}`, book, { headers: authHeader() });
+  // CORRECTED: Using BOOKS_API_URL
+  return axios.put(`${BOOKS_API_URL}/${id}`, book, { headers: authHeader() });
 };
 
+// Function to delete a book (likely for admin use)
 const deleteBook = (id) => {
-  return axios.delete(`${API_URL}/${id}`, { headers: authHeader() });
+  // CORRECTED: Using BOOKS_API_URL
+  return axios.delete(`${BOOKS_API_URL}/${id}`, { headers: authHeader() });
 };
+
 
 const bookService = {
   getAllBooks,
-  getBookById, 
+  getBookById,
   addBook,
   updateBook,
   deleteBook,
