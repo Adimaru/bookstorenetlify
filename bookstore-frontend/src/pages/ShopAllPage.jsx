@@ -18,7 +18,7 @@ function ShopAllPage() {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get('http://localhost:8080/api/books');
+      const response = await bookService.getAllBooks();
       setBooks(response.data);
       setError('');
     } catch (err) {
