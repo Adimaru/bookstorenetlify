@@ -13,7 +13,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.time.Duration;
-import java.math.BigDecimal; 
+import java.math.BigDecimal;
+import io.netty.channel.ChannelOption; // Added import
+import io.netty.handler.timeout.ReadTimeoutHandler; // Added import
+import io.netty.handler.timeout.WriteTimeoutHandler; // Added import
+import org.springframework.http.client.reactive.ReactorClientHttpConnector; // Added import
+import reactor.netty.http.client.HttpClient; // Added import
 
 @Service
 public class GoogleBooksApiService {
@@ -24,8 +29,19 @@ public class GoogleBooksApiService {
     private static final String GOOGLE_BOOKS_API_BASE_URL = "https://www.googleapis.com/books/v1/";
 
     public GoogleBooksApiService(WebClient.Builder webClientBuilder, BookRepository bookRepository) {
-        this.webClient = webClientBuilder.baseUrl(GOOGLE_BOOKS_API_BASE_URL).build();
         this.bookRepository = bookRepository;
+
+        // MODIFIED: Configure HttpClient with increased timeouts
+        HttpClient httpClient = HttpClient.create()
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 20000) // Connection timeout 20 seconds
+            .doOnConnected(conn -> conn
+                .addHandlerLast(new ReadTimeoutHandler(20)) // Read timeout 20 seconds
+                .addHandlerLast(new WriteTimeoutHandler(20))); // Write timeout 20 seconds
+
+        this.webClient = webClientBuilder
+            .baseUrl(GOOGLE_BOOKS_API_BASE_URL)
+            .clientConnector(new ReactorClientHttpConnector(httpClient)) // Use the configured HttpClient
+            .build();
     }
 
     public void fetchAndSaveBooks(String query, int maxResults) {
@@ -37,8 +53,9 @@ public class GoogleBooksApiService {
         logger.info("Attempting to fetch and save books for query: '{}', maxResults: {}", query, maxResults);
 
         try {
+            // The block timeout here should ideally be greater than or equal to the WebClient's internal timeouts
             List<Book> fetchedBooks = searchBooks(query, maxResults)
-                                            .block(Duration.ofSeconds(10));
+                                                .block(Duration.ofSeconds(25)); // Increased block timeout to 25s
 
             if (fetchedBooks != null && !fetchedBooks.isEmpty()) {
                 logger.info("Fetched {} books from Google Books API.", fetchedBooks.size());
@@ -80,33 +97,29 @@ public class GoogleBooksApiService {
                     }
                     String description = Optional.ofNullable(volumeInfo.get("description")).map(JsonNode::asText).orElse("No description available.");
                     String imageUrl = Optional.ofNullable(volumeInfo.get("imageLinks"))
-                                            .map(links -> links.get("thumbnail"))
-                                            .map(JsonNode::asText)
-                                            .orElse(null);
+                                             .map(links -> links.get("thumbnail"))
+                                             .map(JsonNode::asText)
+                                             .orElse(null);
 
-                    
-                    BigDecimal price = new BigDecimal("19.99"); 
-                    
+                    BigDecimal price = new BigDecimal("19.99");
+
                     if (saleInfo != null && saleInfo.has("saleability") && "FOR_SALE".equals(saleInfo.get("saleability").asText())) {
                         JsonNode listPrice = saleInfo.get("listPrice");
                         if (listPrice != null && listPrice.has("amount")) {
-                            
                             price = BigDecimal.valueOf(listPrice.get("amount").asDouble());
                         } else {
-                            
                             JsonNode retailPrice = saleInfo.get("retailPrice");
                             if (retailPrice != null && retailPrice.has("amount")) {
-                                
                                 price = BigDecimal.valueOf(retailPrice.get("amount").asDouble());
                             }
                         }
                     }
-                    int quantity = 10; 
+
+                    int quantity = 10;
 
                     Book book = new Book();
                     book.setTitle(title);
                     book.setAuthor(author);
-                    
                     book.setDescription(description.length() > 2000 ? description.substring(0, 1997) + "..." : description);
                     book.setPrice(price);
                     book.setQuantity(quantity);
